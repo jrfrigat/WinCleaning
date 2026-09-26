@@ -7,7 +7,7 @@
 Откройте PowerShell и выполните:
 
 ```powershell
-irm https://raw.githubusercontent.com/jrfrigat/WinCleaning/main/Clean-All.ps1 | iex
+irm https://raw.githubusercontent.com/jrfrigat/WinCleaning/main/run.ps1 | iex
 ```
 
 Скрипт сам запросит права администратора и покажет меню выбора шагов.
@@ -15,7 +15,7 @@ irm https://raw.githubusercontent.com/jrfrigat/WinCleaning/main/Clean-All.ps1 | 
 Запуск с параметрами (например, только шаги 3, 4 и 5):
 
 ```powershell
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/jrfrigat/WinCleaning/main/Clean-All.ps1))) -Steps 3,4,5
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/jrfrigat/WinCleaning/main/run.ps1))) -Steps 3,4,5
 ```
 
 Или скачайте репозиторий и дважды щёлкните по `CleanAll.bat`.

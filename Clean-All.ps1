@@ -12,7 +12,7 @@
     5. Temp, кэши NuGet/npm, WorkspaceStorage VS Code, дампы падений, корзина.
     6. Старые обновления Windows (DISM StartComponentCleanup, SoftwareDistribution\Download, Delivery Optimization).
     Сам перезапускается с правами администратора. Можно запускать прямо с GitHub:
-        irm https://raw.githubusercontent.com/jrfrigat/WinCleaning/main/Clean-All.ps1 | iex
+        irm https://raw.githubusercontent.com/jrfrigat/WinCleaning/main/run.ps1 | iex
 .PARAMETER Steps
     Номера шагов через запятую, например "1,2,5". Без него скрипт покажет меню выбора.
 .PARAMETER Yes
@@ -30,7 +30,7 @@
 .EXAMPLE
     .\Clean-All.ps1 -Steps 3,4,5
 .EXAMPLE
-    & ([scriptblock]::Create((irm https://raw.githubusercontent.com/jrfrigat/WinCleaning/main/Clean-All.ps1))) -Steps 3,4,5
+    & ([scriptblock]::Create((irm https://raw.githubusercontent.com/jrfrigat/WinCleaning/main/run.ps1))) -Steps 3,4,5
 #>
 
 param(
@@ -42,28 +42,12 @@ param(
     [string]$UserTemp = $env:TEMP
 )
 
-$ScriptUrl = "https://raw.githubusercontent.com/jrfrigat/WinCleaning/main/Clean-All.ps1"
-
 # --- Права администратора ---
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 if (-not $isAdmin) {
     Write-Host "Запрашиваем права администратора..." -ForegroundColor Yellow
-    $scriptFile = $PSCommandPath
-    if (-not $scriptFile) {
-        # Запуск через irm | iex: у скрипта нет файла, скачиваем его во временную папку
-        $scriptFile = Join-Path $env:TEMP "WinCleaning\Clean-All.ps1"
-        New-Item -ItemType Directory -Force (Split-Path $scriptFile) | Out-Null
-        [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
-        try {
-            Invoke-WebRequest -Uri $ScriptUrl -OutFile $scriptFile -UseBasicParsing -ErrorAction Stop
-        } catch {
-            Write-Host "Не удалось скачать скрипт: $($_.Exception.Message)" -ForegroundColor Red
-            Write-Host "Запустите PowerShell от имени администратора и повторите команду." -ForegroundColor Yellow
-            return
-        }
-    }
     # Передаём папки текущего пользователя: администратор может оказаться другой учётной записью
-    $argList = @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$scriptFile`"",
+    $argList = @("-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$PSCommandPath`"",
                  "-UserLocalAppData", "`"$UserLocalAppData`"", "-UserAppData", "`"$UserAppData`"", "-UserTemp", "`"$UserTemp`"")
     if ($Steps)   { $argList += @("-Steps", "`"$Steps`"") }
     if ($Yes)     { $argList += "-Yes" }
